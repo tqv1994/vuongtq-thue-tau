@@ -1,0 +1,12 @@
+name = Nodereference edit link
+description = Add link to edit node in autocomplete field
+package = Other 
+core = 7.x
+dependencies[] = entityreference
+
+; Information added by drupal.org packaging script on 2013-07-12
+version = "7.x-2.1"
+core = "7.x"
+project = "node_reference_filter"
+datestamp = "1373635268"
+

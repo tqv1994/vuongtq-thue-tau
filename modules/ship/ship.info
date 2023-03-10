@@ -1,0 +1,5 @@
+name = Thuê tàu
+description = "Module thuê tàu"
+dependencies[] = prometheus
+package = Custom
+core = "7.x"

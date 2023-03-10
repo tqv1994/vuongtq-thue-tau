@@ -1,0 +1,17 @@
+name = Webform Translation
+description = Translate webform components from within the webform UI.
+core = 7.x
+php = 5.3
+
+package = Webform
+
+dependencies[] = entity_translation
+dependencies[] = webform
+
+
+; Information added by Drupal.org packaging script on 2017-07-07
+version = "7.x-1.0"
+core = "7.x"
+project = "webform_translation"
+datestamp = "1499428744"
+

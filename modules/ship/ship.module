@@ -1,0 +1,209 @@
+<?php
+define('CLASSES_DIR','classes');
+
+require_once (CLASSES_DIR.'/shipmanager.class.php');
+require_once (CLASSES_DIR.'/ShipCustomer.class.php');
+
+class_exists('Prometheus') && Prometheus::register(
+  array(
+    'DEFAULTS' => array(
+      'template' => array(
+        'ob_enable'      => TRUE,
+        'load_as_region' => 'content'  // only load content to content area
+      ),
+    ),
+    'ShipManager' => array(),
+    'ShipCustomer' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
+  )
+);
+
+/**
+ * Implements hook_menu().
+ */
+function ship_menu() {
+  $items = array();
+
+  $items['customer-form'] = array(
+    'title' => 'Customer form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_customer_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+
+function ship_customer_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $form['contact_info_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#required' => TRUE,
+  );
+
+  $form['contact_info_honorific'] = array(
+    '#type' => 'select',
+    '#title' => t('Honorific'),
+    '#options' => array(
+      'Mr.' => 'Mr.',
+      'Ms.' => 'Ms.',
+      'Mrs.' => 'Mrs.',
+      'Captain' => 'Captain'
+    ),
+    '#default_value' => "Mr.",
+  );
+
+  $form['contact_info_job_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Job Title'),
+  );
+
+  $form['contact_info_telephone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Telephone'),
+    '#required' => TRUE,
+  );
+
+  $form['contact_info_mobile'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mobile'),
+  );
+
+  $form['contact_info_fax'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Fax'),
+  );
+
+  $form['contact_info_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email'),
+    '#required' => TRUE,
+  );
+
+  $form['contact_info_msn_skype'] = array(
+    '#type' => 'textfield',
+    '#title' => t('MSN/Skype'),
+  );
+
+  $form['contact_info_facebook_twitter'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Facebook/Twitter'),
+  );
+
+  $form['company_info_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#required' => TRUE,
+  );
+
+  $form['company_info_country'] = array(
+    '#type' => 'select',
+    '#title' => t('Country'),
+    '#options' => array(),
+    '#required' => TRUE,
+  );
+
+  $form['company_info_state_province'] = array(
+    '#type' => 'textfield',
+    '#title' => t('State/Province'),
+    '#required' => TRUE,
+  );
+
+  $form['company_info_city'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City'),
+    '#required' => TRUE,
+  );
+
+  $form['company_info_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address'),
+  );
+
+  $form['company_info_core_business'] = array(
+    '#type' => 'select',
+    '#title' => t('Core Business'),
+    '#options' => array(),
+    '#required' => TRUE,
+  );
+
+  $form['company_info_website'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Website'),
+  );
+
+  $form['company_info_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Company Profile'),
+  );
+
+  return $form;
+}
+
+
+function ship_form_alter(&$form, &$form_state, $form_id) {
+  foreach (element_children($form) as $key){
+    if($form[$key]['#type'] == 'textfield' || $form[$key]['#type'] == 'textarea') {
+      $form[$key]['#attributes']['class'][] = "form-control form-control-sm";
+    }else if($form[$key]['#type'] == 'select'){
+      unset($form[$key]['#attributes']['class']['form-select']);
+      $form[$key]['#attributes']['class'][] = 'form-select-sm';
+    }
+  }
+  if($form_id == 'ship_customer_form'){
+    $group['contact_info'] = ['title', 'honorific',
+      'job_title',
+      'telephone',
+      'mobile',
+      'fax',
+      'email',
+      'msn_skype',
+      'facebook_twitter',
+    ];
+    $group['company_info'] = ['title', 'country',
+      'state_province',
+      'city',
+      'address',
+      'core_business',
+      'website',
+    ];
+    foreach ($group['contact_info'] as $k => $item){
+      $form['contact_info_'.$item]['#prefix'] = '';
+      if($k == 0){
+        $form['contact_info_'.$item]['#prefix'] .= "<h4>".t('Contact Info')."</h4>";
+      }
+      if($k % 2 == 0){
+        $form['contact_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
+        $form['contact_info_'.$item]['#suffix'] = "</div>";
+      }else{
+        $form['contact_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
+        $form['contact_info_'.$item]['#suffix'] = "</div></div>";
+      }
+    }
+
+    foreach ($group['company_info'] as $k => $item){
+      $form['company_info_'.$item]['#prefix'] = '';
+      if($k == 0){
+        $form['company_info_'.$item]['#prefix'] .= "<h4>".t('Company Info')."</h4>";
+      }
+      if($k % 2 == 0){
+        $form['company_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
+        $form['company_info_'.$item]['#suffix'] = "</div>";
+      }else{
+        $form['company_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
+        $form['company_info_'.$item]['#suffix'] = "</div></div>";
+      }
+    }
+  }
+
+}

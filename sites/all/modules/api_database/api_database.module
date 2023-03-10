@@ -1,0 +1,101 @@
+<?php
+function validateToken($token, $minutes = 60){
+  global $user;
+  $validate = false;
+  for($i=0; $i<=$minutes; $i++){
+    if($token == md5(md5($user->uid).md5($user->pass).'ANDINJSC'.date("YmdHi", strtotime("-{$i}minutes"))))
+      $validate = true;
+  }
+  return $validate;
+}
+
+function insertIntoDB($tableName, $fields){
+
+}
+
+function verifyEmail($email) {
+  return filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+function checkEmPty($arrField){
+  foreach ($arrField as $field=>$meg){
+    if(!isset($_POST[$field])){
+      throw new Exception('<div>'.$meg.' không được để trống</div>', 0);
+    }
+    if($_POST[$field]==''){
+      throw new Exception('<div>'.$meg.' không được để trống</div>', 0);
+    }
+  }
+}
+/**
+ * @param $machine_name_vocabulary
+ * @param $termName
+ * @param $fields
+ * @return false|stdClass
+ */
+function saveTerm($machine_name_vocabulary, $termName, $fields = []){
+  $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name_vocabulary);
+  $matched_terms = taxonomy_get_term_by_name($termName, $vocabulary->machine_name);
+  if (empty($matched_terms)) {
+    // There are no matched terms, so add the term.
+    $term = new stdClass();
+    $term->vid = $vocabulary->vid;
+  }
+  else {
+    $term = taxonomy_term_load(array_key_first($matched_terms));
+  }
+  $term->name = $termName;
+  foreach ($fields as $field => $value){
+    $term->{$field}['und'][0]['value'] = $value;
+  }
+  taxonomy_term_save($term);
+  return $term;
+}
+
+function insertNewNode($type, $title, $arrFields){
+  $value = array(
+    'type' => $type,
+    'language' => 'vi',
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'title' => $title,
+    'created'=>strtotime(date("Y-m-d H:i:s"))
+  );
+  $entity = entity_create('node', $value);
+  global $user;
+  $ewrapper = entity_metadata_wrapper('node', $entity);
+  $ewrapper->author = $user;
+  foreach ($arrFields as $field => $value){
+    $ewrapper->{$field}->set($value);
+  }
+  $ewrapper->save();
+  return $entity;
+}
+
+function getTerms($machineNameVocabulary, $fieldCondition = []) {
+  //  taxonomy_term
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'taxonomy_term')
+    ->entityCondition('bundle', $machineNameVocabulary);
+  foreach ($fieldCondition as $field => $value)
+    $query->fieldCondition($field, 'value', $value);
+
+  $results = $query->execute();
+  $tids = array_keys($results['taxonomy_term']);
+
+  return taxonomy_term_load_multiple($tids);
+}
+
+function getToken(){
+  global $user;
+  if($user->uid == 0)
+    $token = md5(md5($user->uid).md5('').'ANDINJSC'.date("YmdHi"));
+  else $token = md5(md5($user->uid).md5($user->pass).'ANDINJSC'.date("YmdHi"));
+  return $token;
+}
+function getListPermissionByModule($moduleName){
+  $perms = module_invoke($moduleName, 'permission');
+  return $perms;
+}
+
+

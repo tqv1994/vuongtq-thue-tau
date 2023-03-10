@@ -1,0 +1,333 @@
+<?php
+
+define('WEBFORM_TRANSLATION_CONFIGURATION_COMPONENT', -1);
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function webform_translation_module_implements_alter(&$implementations, $hook) {
+  // This is done first.
+  if ($hook == 'node_view') {
+    $group = $implementations['webform_translation'];
+    unset($implementations['webform_translation']);
+    $implementations = array('webform_translation' => $group) + $implementations;
+  }
+}
+
+/**
+ * Implements hook_webform_component_render_alter().
+ */
+function webform_translation_webform_component_render_alter(&$element, $component) {
+  global $language;
+  webform_translation_webform_translate_component($element, $component, $language);
+}
+
+/**
+ * Implements hook_webform_submission_render_alter().
+ */
+function webform_translation_webform_submission_render_alter(&$renderable) {
+  global $language;
+  $children = element_children($renderable);
+  foreach ($children as $child) {
+    webform_translation_webform_translate_component($renderable[$child], $renderable[$child]['#webform_component'], $language);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for webform_component_edit_form.
+ */
+function webform_translation_form_webform_component_edit_form_alter(&$form, &$form_state) {
+  $node = $form_state['build_info']['args'][0];
+  $component = $form_state['build_info']['args'][1];
+
+  // Get the array that contains the #translatable data.
+  $component_render = webform_component_invoke($component['type'], 'render', $component);
+
+  // Add the translation fields and fields.
+  if (isset($component_render['#translatable'])) {
+    $languages = $node->translations->data;
+
+    if (count($languages)) {
+      $node_language = $languages[$node->language];
+      unset($languages[$node->language]);
+      $form['#submit'][] = 'webform_translation_component_form_submit';
+
+      $weight = isset($form['actions']['#weight']) ? $form['actions']['#weight'] : $form['actions']['submit']['#weight'];
+      $form['translate'] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#title' => t('Translate'),
+        '#weight' => $weight - 1,
+      );
+
+      foreach ($languages as $language) {
+        $form['translate'][$language['language']] = array(
+          '#type' => 'fieldset',
+          '#collapsible' => TRUE,
+          '#collapsed' => count($languages) > 1,
+          '#title' => t('From @source to @destination', array('@destination' => $language['language'], '@source' => $node_language['language'])),
+        );
+
+        foreach ($component_render['#translatable'] as $field) {
+          $source_field = _webform_translation_get_field($form, $field);
+
+          if ($field == 'options') {
+            $source_field['#description'] = '<strong>' . t('Keep the safe_key similar to the untranslated version.') . '</strong><br />' . $source_field['#description'];
+          }
+
+          $form['translate'][$language['language']][$field] = array(
+            '#type' => $source_field['#type'],
+            '#title' => $source_field['#title'],
+            '#description' => empty($source_field['#description']) ? '' : $source_field['#description'],
+            '#default_value' => empty($component['cid']) ? '' : webform_translation_component_get_translation($component, $field, $language['language']),
+            '#maxlength' => empty($source_field['#maxlength']) ? '' : $source_field['#maxlength']
+          );
+
+          // Text format elements have a special value.
+          if ($source_field['#type'] == 'text_format' && is_array($form['translate'][$language['language']][$field]['#default_value'])) {
+            $form['translate'][$language['language']][$field]['#format'] = $form['translate'][$language['language']][$field]['#default_value']['format'];
+            $form['translate'][$language['language']][$field]['#default_value'] = $form['translate'][$language['language']][$field]['#default_value']['value'];
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for webform component form to translate the component.
+ */
+function webform_translation_component_form_submit($form, $form_state) {
+  if (isset($form_state['values']['translate'])) {
+    foreach ($form_state['values']['translate'] as $language => $fields) {
+      foreach ($fields as $field => $translation) {
+        $source_field = _webform_translation_get_field($form, $field);
+        if (empty($translation) || $source_field['#default_value'] == $translation) {
+          unset($fields[$field]);
+        }
+      }
+
+      if ($fields) {
+        // And put it in the db.
+        db_merge('webform_component_translation')
+          ->key(array(
+            'nid' => $form_state['values']['nid'],
+            'cid' => $form_state['values']['cid'],
+            'language' => $language,
+          ))
+          ->fields(array(
+            'translations' => serialize($fields),
+          ))
+          ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to translate a component.
+ */
+function webform_translation_webform_translate_component(&$element, $component, $language) {
+  if (isset($element['#translatable'])) {
+    foreach ($element['#translatable'] as $form_element) {
+      // Translate a property of the $element.
+      if (isset($element['#' . $form_element])) {
+        $value = webform_translation_component_get_translation($component, $form_element, $language->language);
+
+        // Text to array for options.
+        if ($form_element == 'options') {
+          $value = _webform_select_options_from_text($value);
+        }
+
+        // Array to text for text_format.
+        if ($form_element == 'markup') {
+          if (is_array($value) && isset($value['value'], $value['format'])) {
+            $value = check_markup($value['value'], $value['format']);
+          }
+          else {
+            $value = NULL;
+          }
+        }
+
+        // Some values are NULL because they don't have a translation, not even a default.
+        if ($value !== NULL) {
+          $element['#' . $form_element] = $value;
+        }
+      }
+    }
+    // Translate a sub field of the element.
+  }
+}
+
+/**
+ * Helper function to retrieve a translation for a component.
+ */
+function webform_translation_component_get_translation($component, $field, $language) {
+  $index = $component['nid'] . ':' . $component['cid'] . ':' . $language;
+  $translations = &drupal_static(__FUNCTION__ . $index, array());
+
+  if (!$translations) {
+    $webform_translation = db_select('webform_component_translation', 'wct')
+      ->condition('nid', $component['nid'])
+      ->condition('cid', $component['cid'])
+      ->condition('language', $language)
+      ->fields('wct', array('translations'))
+      ->execute()
+      ->fetchObject();
+
+    if (isset($webform_translation->translations)) {
+      $translations = unserialize($webform_translation->translations);
+    }
+  }
+
+  // Return translation, or the default value.
+  return @$translations[$field] ?: _webform_translation_get_field($component, $field);
+}
+
+/**
+ * Helper function to find a field in an array of elements.
+ */
+function _webform_translation_get_field($elements, $field) {
+  // Stupid inconsistent webform.
+  if ($field == 'title') {
+    $field = 'name';
+  }
+  elseif ($field == 'options') {
+    $field = 'items';
+  }
+  elseif ($field == 'markup') {
+    $field = 'value';
+  }
+
+  // We found the element.
+  if (isset($elements[$field])) {
+    return $elements[$field];
+  }
+
+  // Find the element in the children.
+  $children = element_children($elements);
+  foreach ($children as $child) {
+    if ($child != 'children' && is_array($elements[$child])) {
+      if ($return = _webform_translation_get_field($elements[$child], $field)) {
+        return $return;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function webform_translation_node_delete($node) {
+  db_delete('webform_component_translation')->condition('nid', $node->nid)->execute();
+}
+
+/**
+ * Implements hook_webform_component_delete().
+ */
+function webform_translation_webform_component_delete($component) {
+  db_delete('webform_component_translation')->condition('nid', $component['nid'])->condition('cid', $component['cid'])->execute();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for webform_configure_form().
+ *
+ * Translate the submit button.
+ */
+function webform_translation_form_webform_configure_form_alter(&$form, &$form_state) {
+  $node = $form['#node'];
+
+  $languages = $node->translations->data;
+  $node_language = $languages[$node->language];
+  unset($languages[$node->language]);
+
+  if ($languages) {
+    $form['#submit'][] = 'webform_translation_configure_form_submit';
+    $form['translate'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => t('Translate'),
+      '#weight' => $form['actions']['#weight'] - 1,
+      '#tree' => TRUE,
+    );
+
+    foreach ($languages as $language) {
+      $form['translate'][$language['language']] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => count($languages) > 1,
+        '#title' => t('From @source to @destination', array('@destination' => $language['language'], '@source' => $node_language['language'])),
+      );
+
+      // Make fake components to translate.
+      $component = array(
+        'nid' => $node->nid,
+        'cid' => WEBFORM_TRANSLATION_CONFIGURATION_COMPONENT,
+        'submit_text' => $node->webform['submit_text'],
+      );
+
+      foreach (array('submit_text') as $field_name) {
+        $source_field = _webform_translation_get_field($form, $field_name);
+        $form['translate'][$language['language']][$field_name] = array(
+          '#type' => $source_field['#type'],
+          '#title' => $source_field['#title'],
+          '#description' => $source_field['#description'],
+          '#default_value' => webform_translation_component_get_translation($component, $field_name, $language['language']),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for webform configure form to translate the fake components.
+ */
+function webform_translation_configure_form_submit($form, $form_state) {
+  if (isset($form_state['values']['translate'])) {
+    foreach ($form_state['values']['translate'] as $language => $fields) {
+      foreach ($fields as $field => $translation) {
+        $source_field = _webform_translation_get_field($form, $field);
+        if (empty($translation) || $source_field['#default_value'] == $translation) {
+          unset($fields[$field]);
+        }
+      }
+
+      if ($fields) {
+        // And put it in the db.
+        db_merge('webform_component_translation')
+          ->key(array(
+            'nid' => $form_state['values']['nid'],
+            'cid' => WEBFORM_TRANSLATION_CONFIGURATION_COMPONENT,
+            'language' => $language,
+          ))
+          ->fields(array(
+            'translations' => serialize($fields),
+          ))
+          ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function webform_translation_node_view($node) {
+  global $language_content;
+
+  // Translate webform components.
+  if (in_array($node->type, webform_variable_get('webform_node_types'))) {
+    if (isset($node->webform)) {
+      $component = array(
+        'nid' => $node->nid,
+        'cid' => WEBFORM_TRANSLATION_CONFIGURATION_COMPONENT,
+        'submit_text' => $node->webform['submit_text'],
+      );
+
+      $node->webform['submit_text'] = webform_translation_component_get_translation($component, 'submit_text', $language_content->language);
+    }
+  }
+}
+

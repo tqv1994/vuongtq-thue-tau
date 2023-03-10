@@ -1,0 +1,56 @@
+name = Giao diện phần mềm quản lý tàu
+description = ANDIN JSC
+core = 7.x
+package = Core
+version = VERSION
+
+stylesheets[all][] =  app-assets/vendors/css/vendors.min.css
+stylesheets[all][] =  app-assets/vendors/css/charts/apexcharts.css
+stylesheets[all][] =  app-assets/vendors/css/extensions/toastr.min.css
+stylesheets[all][] =  app-assets/vendors/css/animate/animate.min.css
+stylesheets[all][] =  app-assets/vendors/css/extensions/sweetalert2.min.css
+
+stylesheets[all][] =  app-assets/css/bootstrap.css
+stylesheets[all][] =  app-assets/css/bootstrap-extended.css
+stylesheets[all][] =  app-assets/css/colors.css
+stylesheets[all][] =  app-assets/css/components.css
+stylesheets[all][] =  app-assets/css/themes/dark-layout.css
+stylesheets[all][] =  app-assets/css/themes/bordered-layout.css
+stylesheets[all][] =  app-assets/css/components.css
+stylesheets[all][] =  app-assets/css/themes/semi-dark-layout.css
+stylesheets[all][] =  app-assets/css/core/menu/menu-types/horizontal-menu.css
+stylesheets[all][] =  app-assets/css/plugins/extensions/ext-component-toastr.css
+stylesheets[all][] =  app-assets/vendors/css/forms/select/select2.min.css
+stylesheets[all][] =  app-assets/vendors/css/pickers/pickadate/pickadate.css
+stylesheets[all][] =  app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css
+stylesheets[all][] =  app-assets/css/plugins/forms/pickers/form-flat-pickr.css
+stylesheets[all][] =  app-assets/css/plugins/forms/pickers/form-pickadate.css
+stylesheets[all][] =  assets/css/style.css
+
+scripts[] = app-assets/vendors/js/vendors.min.js
+scripts[] = app-assets/vendors/js/ui/jquery.sticky.js
+scripts[] = app-assets/vendors/js/forms/cleave/cleave.min.js
+scripts[] = app-assets/vendors/js/forms/cleave/addons/cleave-phone.us.js
+scripts[] = app-assets/js/core/app-menu.js
+scripts[] = app-assets/vendors/js/forms/select/select2.full.min.js
+scripts[] = app-assets/vendors/js/pickers/pickadate/picker.js
+scripts[] = app-assets/vendors/js/pickers/pickadate/picker.date.js
+scripts[] = app-assets/vendors/js/pickers/pickadate/legacy.js
+scripts[] = app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js
+scripts[] = app-assets/vendors/js/forms/repeater/jquery.repeater.min.js
+
+scripts[] = app-assets/vendors/js/extensions/sweetalert2.all.min.js
+scripts[] = app-assets/vendors/js/extensions/polyfill.min.js
+scripts[] = app-assets/vendors/js/forms/cleave/cleave.min.js
+scripts[] = app-assets/vendors/js/extensions/toastr.min.js
+scripts[] = app-assets/vendors/js/ckeditor/ckeditor.js
+scripts[] = app-assets/js/core/app.js
+scripts[] = app-assets/js/scripts/jquery.PrintArea.js
+
+
+
+regions[login_block] = Login Block
+regions[content] = Content
+regions[sidebar_first] = Sidebar First
+regions[highlighted] = Highlight
+regions[sidebar_second] = Sidebar Second

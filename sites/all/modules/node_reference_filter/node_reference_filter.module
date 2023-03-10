@@ -1,0 +1,286 @@
+<?php
+/**
+ * @file
+ * Core functions for node_reference_filter module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function node_reference_filter_menu() {
+  // Override nodereference autocomplete url, to use our own.
+  $items['node_reference_filter/autocomplete/single/%/%/%'] = array(
+    'title' => 'Nodereference filter autocomplete',
+    'page callback' => 'node_reference_filter_autocomplete_callback',
+    'page arguments' => array(2, 3, 4, 5),
+    'access callback' => 'entityreference_autocomplete_access_callback',
+    'access arguments' => array(2, 3, 4, 5),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/content/nodereference_settings'] = array(
+    'title' => 'Node reference filtering',
+    'description' => 'Define additional settings for node reference fields per node type.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_reference_filter_node_type_form'),
+    'access arguments' => array('administer nodes'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'node_reference_filter.admin.inc',
+  );
+  $items['admin/config/content/nodereference_settings/edit/%/%'] = array(
+    'title' => 'Edit field settings',
+    'description' => 'Edit field settings for nodereference autocomplete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_reference_filter_field_settings_form'),
+    'access arguments' => array('administer nodes'),
+    'type' => MENU_CALLBACK,
+    'file' => 'node_reference_filter.admin.inc',
+  );
+  $items['admin/config/content/nodereference_settings/reset/%/%'] = array(
+    'title' => 'Reset field settings',
+    'description' => 'Reset field settings to the default drupal nodereference autocomplete function',
+    'page callback' => 'node_reference_filter_reset_field_settings',
+    'access arguments' => array('administer nodes'),
+    'type' => MENU_CALLBACK,
+    'file' => 'node_reference_filter.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Handle autocomplete callback for overwritten field.
+ */
+function node_reference_filter_autocomplete_callback($type, $field_name, $entity_type, $bundle_name, $entity_id = '', $string = '') {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+  $settings = node_reference_filter_get_settings($string);
+  $filter_settings = variable_get('nrf_' . $bundle_name . '_' . $field_name, array('apply_filter' => 0, 'filter_types' => array()));
+
+  // Handle a node id look up.
+  if ($settings['field'] == 'nid') {
+    $matches = array();
+    $result = db_query('SELECT nid, title FROM {node} WHERE nid = :nid', array(':nid' => $settings['term']));
+    while ($record = $result->fetchObject()) {
+      $matches[$record->title . ' (' . $record->nid . ')'] = '<div class="reference-autocomplete">' . $record->title . '</div>';
+    }
+    drupal_json_output($matches);
+    return NULL;
+  }
+  else {
+    $string = $settings['term'];
+    // Overwrite node type settings.
+    if (!empty($settings['type'])) {
+      $field['settings']['handler_settings']['target_bundles'] = array($settings['type']);
+    }
+    else {
+      $field['settings']['handler_settings']['target_bundles'] = $filter_settings['filter_types'];
+    }
+    // Overwrite match type.
+    if ($settings['operand'] == 'START') {
+      $instance['widget']['settings']['match_operator'] = 'STARTS_WITH';
+    }
+    return node_reference_filter_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id, $string);
+  }
+}
+
+/**
+ * Get matches using entity api.
+ */
+function node_reference_filter_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id = '', $string = '') {
+  $matches = array();
+
+  $entity = NULL;
+  if ($entity_id !== 'NULL') {
+    $entity = entity_load_single($entity_type, $entity_id);
+    if (!$entity || !entity_access('view', $entity_type, $entity)) {
+      return MENU_ACCESS_DENIED;
+    }
+  }
+
+  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+
+  if ($type == 'tags') {
+    // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+    $tags_typed = drupal_explode_tags($string);
+    $tag_last = drupal_strtolower(array_pop($tags_typed));
+    if (!empty($tag_last)) {
+      $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
+    }
+  }
+  else {
+    // The user enters a single tag.
+    $prefix = '';
+    $tag_last = $string;
+  }
+
+  if (isset($tag_last)) {
+    // Get an array of matching entities.
+    $entity_labels = $handler->getReferencableEntities($tag_last, $instance['widget']['settings']['match_operator'], 10);
+
+    // Loop through the products and convert them into autocomplete output.
+    foreach ($entity_labels as $values) {
+      foreach ($values as $entity_id => $label) {
+        $key = "$label ($entity_id)";
+        // Strip things like starting/trailing white spaces, line breaks and tags.
+        $key = preg_replace('/\s\s+/', ' ', str_replace("\n", '', trim(decode_entities(strip_tags($key)))));
+        // Names containing commas or quotes must be wrapped in quotes.
+        if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
+          $key = '"' . str_replace('"', '""', $key) . '"';
+        }
+        // Get node type to add to label.
+        $type = db_query('SELECT t.name FROM {node_type} AS t JOIN {node} AS n ON t.type = n.type WHERE n.nid = :nid', array(':nid' => $entity_id))->fetchField();
+        $matches[$prefix . $key] = '<div class="reference-autocomplete">' . $label . ' (' . $type . ')</div>';
+      }
+    }
+  }
+
+  drupal_json_output($matches);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function node_reference_filter_form_alter(&$form, $form_state, $form_id) {
+  if (preg_match('/(_node_form)$/', $form_id) && preg_match('/node\-form$/', $form['#id'])) {
+    // Get autocomplete fields for node type.
+    $sql = 'SELECT i.field_name, i.data, n.name, n.type, c.data AS gdata FROM {field_config_instance} AS i
+      JOIN {field_config} AS c ON i.field_name = c.field_name JOIN {node_type} AS n ON i.bundle = n.type
+      WHERE c.type = \'entityreference\' AND n.type = :type ORDER BY i.field_name, n.name ASC';
+    $fields = db_query($sql, array(':type' => $form['type']['#value']));
+
+    // Loop fields to add filter options help.
+    while ($field = $fields->fetchObject()) {
+      $data = unserialize($field->data);
+      $gdata = unserialize($field->gdata);
+      if ($data['widget']['type'] == 'entityreference_autocomplete' && $gdata['settings']['target_type'] == 'node') {
+        $filter_settings = variable_get('nrf_' . $form['type']['#value'] . '_' . $field->field_name, array('apply_filter' => 0, 'filter_types' => array()));
+        if ($filter_settings['apply_filter'] == 1) {
+          // Replace ajax submission url.
+          foreach ($form[$field->field_name][$form[$field->field_name]['#language']] as $index => &$f) {
+            if (preg_match('/^[0-9]+$/', $index)) {
+              $f['target_id']['#autocomplete_path'] = preg_replace('/^entityreference\//', 'node_reference_filter/', $f['target_id']['#autocomplete_path']);
+            }
+          }
+          // Add help text options.
+          $form[$field->field_name . '_filteroptions'] = array(
+            '#type' => 'fieldset',
+            '#collapsed' => TRUE,
+            '#collapsible' => TRUE,
+            '#weight' => $form[$field->field_name]['#weight'] + 0.5,
+            '#title' => 'Filter Options'
+          );
+          $form[$field->field_name . '_filteroptions']['help'] = array(
+            '#markup' => node_reference_filter_help_text($filter_settings['filter_types'])
+          );
+          $form[$field->field_name . '_filteroptions']['nid'] = array(
+            '#markup' => '<div>You can also search by using the node id.</div>'
+          );
+          $form[$field->field_name . '_createoptions'] = array(
+            '#type' => 'fieldset',
+            '#collapsed' => TRUE,
+            '#collapsible' => TRUE,
+            '#weight' => $form[$field->field_name]['#weight'] + 0.7,
+            '#title' => 'Create link node',
+            '#description' => 'Create node of a content type that is associated with this field.'
+          );
+          $form[$field->field_name . '_createoptions']['help'] = array(
+            '#markup' => node_reference_filter_create_help_text($filter_settings['filter_types'])
+          );
+          // Check for field grouping.
+          if (!empty($form['#group_children'][$field->field_name])) {
+            $group = $form['#group_children'][$field->field_name];
+            $form['#groups'][$group]->children[] = $field->field_name . '_filteroptions';
+            $form['#groups'][$group]->children[] = $field->field_name . '_createoptions';
+            $form['#fieldgroups'][$group]->children[] = $field->field_name . '_filteroptions';
+            $form['#fieldgroups'][$group]->children[] = $field->field_name . '_createoptions';
+            $form['#group_children'][$field->field_name . '_filteroptions'] = $group;
+            $form['#group_children'][$field->field_name . '_createoptions'] = $group;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Get help text for filter options.
+ *
+ * @param array $types
+ *   Node types allowed for filter.
+ *
+ * @return string
+ *   HTML for help text.
+ */
+function node_reference_filter_help_text($types) {
+  $output = '<div>FORMAT: term[start][T:node type]</div>';
+  $output .= '<div>Use the syntax [start] to only search titles that begin with your search term.</div>';
+  $output .= '<div>Possible place holders for filtering node type [T:node_type]</div>';
+  $output .= '<ul>';
+  foreach ($types as $t) {
+    $output .= '<li>' . $t . '</li>';
+  }
+  $output .= '</ul>';
+  return $output;
+}
+
+/**
+ * Get help text for create node options.
+ *
+ * @param array $types
+ *   Node types allowed for filter.
+ *
+ * @return string
+ *   HTML for help text.
+ */
+function node_reference_filter_create_help_text($types) {
+  $nts = node_type_get_types();
+  $output = '';
+  $output .= '<ul>';
+  foreach ($types as $t) {
+    if (array_key_exists($t, $nts)) {
+      $output .= '<li><a href="/node/add/' . str_replace('_', '-', $t) . '" target="_blank">' . $nts[$t]->name . '</a></li>';
+    }
+  }
+  return $output;
+}
+
+/**
+ * Strip search filter settings from term string.
+ *
+ * @param string $string
+ *   Search term.
+ *
+ * @return array
+ *   Settings for filtering.
+ */
+function node_reference_filter_get_settings($string) {
+  $settings = array(
+    'term' => '',
+    'operand' => 'LIKE',
+    'type' => '',
+  );
+  // Get node type filter.
+  $type = array();
+  if (preg_match('/\[(T|t):[a-zA-Z_]+\]/', $string, $type)) {
+    $parts = explode(':', $type[0]);
+    $settings['type'] = strtolower(preg_replace('/[^a-zA-Z_]/', '', $parts[1]));
+    $string = str_replace($type[0], '', $string);
+  }
+  // Get start with filter.
+  $start_with = FALSE;
+  if (preg_match('/\[start\]/', $string)) {
+    $start_with = TRUE;
+    $string = str_replace('[start]', '', $string);
+    $settings['operand'] = 'START';
+  }
+  // Check if term starts with ^, meaning result starts with.
+  $string = trim($string);
+  // Set term value.
+  $settings['term'] = $string;
+  // Check if searching for a node id.
+  if (!preg_match('/[^0-9]/', $string)) {
+    $settings['term'] = $string;
+    $settings['field'] = 'nid';
+    $settings['operand'] = '=';
+  }
+  return $settings;
+}

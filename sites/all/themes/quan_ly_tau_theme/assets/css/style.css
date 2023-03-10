@@ -1,0 +1,113 @@
+.table > :not(caption) > * > *{
+  padding: 0.72rem 0.72rem;
+}
+.text-right {
+  text-align: right;
+}
+.placeholder{
+  background: none;
+  cursor: none;
+  opacity: 1;
+}
+.view-filters{
+  display: none;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b{
+  border-color: unset;
+  border-style: unset;
+  border-width: 5px 4px 0 4px;
+  height: 100%;
+  left: 0;
+  margin-left: -4px;
+  margin-top: -2px;
+  position: absolute;
+  top: 50%;
+  width: 0;
+}
+.horizontal-menu .header-navbar.navbar-brand-center .navbar-header {
+  position: absolute;
+  left: calc(6% - 56px);
+  padding: 0;
+  z-index: 1000;
+}
+.ml-10{
+  margin-left:  25px;
+}
+.form-group{
+  margin-bottom: 15px;
+}
+.relative {
+  position: relative;
+}
+.text-blue{
+  color: #1D1CE5;
+}
+.font-14{
+  font-size: 14pt;
+}
+.flatpickr-wrapper{
+  width:100%!important;
+}
+.font-weight-600{
+  font-weight: 600;
+}
+.font-size-25{
+  font-size: 20px;
+}
+@page {
+  size: A5 landscape;
+  margin: 10%;
+}
+body,html {
+  font-family: Roboto!important;
+  font-size: 16px;
+  color:#202124!important;
+}
+h1, h2, h3, h4, h5, h6,ul,li,.header-navbar {
+  font-family: Roboto!important;
+}
+.header-navbar {
+  color:#202124!important;
+  font-family: Roboto!important;
+}
+.dropdown-item {
+  font-size: 15px!important;
+}
+.table{
+  color:#202124!important;
+}
+.main-menu-content, .main-menu-content ul, .main-menu-content ul li{
+  text-transform: uppercase;
+  color: #202124!important;
+  font-weight: 600;
+  font-size: 15px;
+}
+.mr-10{
+  margin-right: 10px;
+}
+.btn-remove-hop-dong{
+  background: white;
+  border-radius: 4px;
+  position: absolute;
+  top: -3px;
+  right: -4px;
+}
+.td-hop-dong{
+  max-width: 350px!important;
+}
+@media (max-width: 1199.98px){
+  .horizontal-layout.horizontal-menu .horizontal-menu-wrapper .header-navbar {
+    display: unset;
+  }
+  .horizontal-layout.navbar-floating:not(.blank-page) .app-content {
+    padding: calc(2rem + 4.45rem* 2 + 1.3rem) 2rem 0 2rem!important;
+  }
+}
+@media (max-width: 800px){
+  .horizontal-layout.horizontal-menu .horizontal-menu-wrapper .header-navbar {
+    display: none;
+  }
+  .horizontal-layout.navbar-floating:not(.blank-page) .app-content {
+    padding: calc(2rem + 4.45rem ) 2rem 0 2rem!important;
+  }
+}

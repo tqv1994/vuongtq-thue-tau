@@ -1,0 +1,5 @@
+name = API CURD CSDL
+core = 7.x
+files[] = api_database.module
+package = ANDIN JSC
+php = 7.0

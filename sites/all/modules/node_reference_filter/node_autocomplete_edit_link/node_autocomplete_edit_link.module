@@ -1,0 +1,15 @@
+<?php
+/**
+ * @file
+ * Core functions for node_autocomplete_edit_link module.
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function node_autocomplete_edit_link_form_alter(&$form, &$form_state, $form_id) {
+  if (preg_match('/_node_form$/', $form_id)) {
+    $module_path = drupal_get_path('module', 'node_autocomplete_edit_link');
+    drupal_add_js($module_path . '/node_autocomplete_edit_link.js');
+  }
+}
