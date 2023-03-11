@@ -26,7 +26,14 @@ class ShipCustomer {
         }
         $content .= $this->getValidateErrorHtml($errors);
       }else{
-        $id = $formModel->saveForm($_POST, $node);
+        if($id = $formModel->saveForm($_POST, $node)){
+          return [
+            'title' => "Sửa $this->title",
+            'content' => '<span class="text-success">'.t('Update').' ' . $this->title . ' '.t('success').'</span>',
+            'footer' =>
+              "<a data-bs-dismiss='modal' class='btn btn-default'>".t('Close')."</a>",
+          ];
+        }
 
       }
     }
@@ -52,7 +59,16 @@ class ShipCustomer {
         }
         $content .= $this->getValidateErrorHtml($errors);
       }else{
-        $id = $formModel->saveForm($_POST, $node);
+        if($id = $formModel->saveForm($_POST, $node)){
+          return [
+            'forceReload' => '#crud-datatable-pjax',
+            'title' => "Tạo Mới $this->title",
+            'content' => '<span class="text-success">'.t('Create').' ' . $this->title . ' '.t('success').'</span>',
+            'footer' =>
+              "<a href='/shipcustomer/create' role='modal-remote' class='btn btn-success btn-sm'>".t('Add more')."</a>",
+          ];
+        }
+
       }
     }
     return [
@@ -61,6 +77,14 @@ class ShipCustomer {
       "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
       'size' => 'large',
     ];
+  }
+
+  public function delete($id){
+    if(isset($_POST) && count($_POST) > 0){
+      $form = new CustomerForm();
+      $form->delete($id);
+      return ['forceClose' => true];
+    }
   }
 
   protected function getValidateErrorHtml($errors){

@@ -8,6 +8,7 @@ require_once (CLASSES_DIR.'/ShipCustomer.class.php');
 
 require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
+require_once(HELPERS_DIR.'/NodeHelper.php');
 
 require_once(FORMS_DIR.'/CustomerForm.php');
 
@@ -28,6 +29,11 @@ class_exists('Prometheus') && Prometheus::register(
           ),
         ),
         'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
           'view' => array(
             'json' => array()  // use json to pass values via ajax calls
           ),
