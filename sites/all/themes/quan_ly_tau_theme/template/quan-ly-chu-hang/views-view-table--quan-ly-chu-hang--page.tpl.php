@@ -2,6 +2,9 @@
   <?php if (!empty($title) || !empty($caption)): ?>
     <caption><?php print $caption . $title; ?></caption>
   <?php endif; ?>
+  <div class="action-header mb-2">
+    <a href="/shipcustomer/create" class="btn btn-success btn-sm" role="modal-remote"><?php print t('Create') ?></a>
+  </div>
   <?php if (!empty($header)) : ?>
     <thead>
     <tr>

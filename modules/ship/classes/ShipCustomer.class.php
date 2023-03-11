@@ -16,22 +16,17 @@ class ShipCustomer {
     $node = $this->getNodeById($id);
     $formModel = new CustomerForm();
     $form = drupal_get_form('ship_customer_form');
-    $companyInfo = null;
-        $contactInfo = null;
-        $companyInfoId = $node->field_contact_company['und'][0]['target_id'] ?? null;
-        if(!is_null($companyInfoId)){
-            $companyInfo = node_load($companyInfoId);
-        }
     $content = "";
-    if(isset($_POST)){
+    if(isset($_POST) && count($_POST) > 0){
       $messages = drupal_get_messages('error');
-      if(!empty($messages['error'])){
+      if(count($messages['error']) > 0){
         $errors = [];
         foreach ($messages['error'] as $error){
           $errors[] = $error;
         }
         $content .= $this->getValidateErrorHtml($errors);
       }else{
+        $id = $formModel->saveForm($_POST, $node);
 
       }
     }
@@ -40,7 +35,31 @@ class ShipCustomer {
       "content" => $content.drupal_render($form),
       "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
       'size' => 'large',
-      'node' => $companyInfo,
+    ];
+  }
+
+  public function create(){
+    $node = null;
+    $formModel = new CustomerForm();
+    $form = drupal_get_form('ship_customer_form');
+    $content = "";
+    if(isset($_POST) && count($_POST) > 0){
+      $messages = drupal_get_messages('error');
+      if(count($messages['error']) > 0){
+        $errors = [];
+        foreach ($messages['error'] as $error){
+          $errors[] = $error;
+        }
+        $content .= $this->getValidateErrorHtml($errors);
+      }else{
+        $id = $formModel->saveForm($_POST, $node);
+      }
+    }
+    return [
+      "title" => t("Create")." ".$this->title,
+      "content" => $content.drupal_render($form),
+      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
+      'size' => 'large',
     ];
   }
 
