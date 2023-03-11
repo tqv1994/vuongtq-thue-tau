@@ -157,4 +157,20 @@ class CustomerForm
     $entity->save();
     return $entity->getIdentifier();
   }
+
+  public function delete($id){
+    if($node = node_load($id)){
+      $contactInfoId = $node->field_contact_info['und'][0]['target_id'] ?? null;
+      if (!is_null($contactInfoId)) {
+        $contactInfoNode = node_load($contactInfoId);
+        NodeHelper::deleteNode($contactInfoNode);
+      }
+      $companyInfoId = $node->field_contact_company['und'][0]['target_id'] ?? null;
+      if (!is_null($companyInfoId)) {
+        $companyInfoNode = node_load($companyInfoId);
+        NodeHelper::deleteNode($companyInfoNode);
+      }
+    }
+    return NodeHelper::deleteNode($node);
+  }
 }

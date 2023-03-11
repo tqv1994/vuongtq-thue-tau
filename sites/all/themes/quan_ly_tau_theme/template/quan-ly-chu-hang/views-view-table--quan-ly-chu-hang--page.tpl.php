@@ -30,11 +30,13 @@
       <?php if(isset($row['nid'])): ?>
       <td class="text-center">
           <a class="btn btn-sm btn-warning" role="modal-remote" href="/shipcustomer/edit/?id=<?php echo $row['nid'] ?>">
-            Sửa
+            <?php print t('Edit') ?>
           </a>
-          <button class="btn btn-sm btn-danger">
-            Xóa
-          </button>
+          <a data-pjax="0" role="modal-remote" data-request-method="post" href="/shipcustomer/delete/<?php echo $row['nid'] ?>"
+        data-toggle="tooltip" data-confirm-title="<?php print t("Warning") ?>"
+        data-confirm-message="<?php print t("Are you sure you want to delete?") ?>" data-original-title="<?php print t("Delete") ?>" class="btn btn-sm btn-danger">
+            <?php print t('Delete') ?>
+          </a>
       </td>
       <?php endif; ?>
     </tr>
