@@ -183,6 +183,9 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       if($k % 2 == 0){
         $form['contact_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
         $form['contact_info_'.$item]['#suffix'] = "</div>";
+        if(!isset($group['contact_info'][$k + 1])){
+          $form['contact_info_'.$item]['#suffix'] .= "</div>";
+        }
       }else{
         $form['contact_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
         $form['contact_info_'.$item]['#suffix'] = "</div></div>";
@@ -197,6 +200,9 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       if($k % 2 == 0){
         $form['company_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
         $form['company_info_'.$item]['#suffix'] = "</div>";
+        if(!isset($group['contact_info'][$k + 1])){
+          $form['company_info_'.$item]['#suffix'] .= "</div>";
+        }
       }else{
         $form['company_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
         $form['company_info_'.$item]['#suffix'] = "</div></div>";
