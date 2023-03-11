@@ -26,6 +26,11 @@ class_exists('Prometheus') && Prometheus::register(
           'view' => array(
             'json' => array()  // use json to pass values via ajax calls
           ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
         )
       )
     ),
