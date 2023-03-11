@@ -12,9 +12,16 @@ class ShipCustomer {
 
   }
 
-  public function edit(){
-
+  public function edit($id){
+    $node = $this->getNodeById($id);
+    $formModel = new CustomerForm();
     $form = drupal_get_form('ship_customer_form');
+    $companyInfo = null;
+        $contactInfo = null;
+        $companyInfoId = $node->field_contact_company['und'][0]['target_id'] ?? null;
+        if(!is_null($companyInfoId)){
+            $companyInfo = node_load($companyInfoId);
+        }
     $content = "";
     if(isset($_POST)){
       $messages = drupal_get_messages('error');
@@ -24,15 +31,16 @@ class ShipCustomer {
           $errors[] = $error;
         }
         $content .= $this->getValidateErrorHtml($errors);
-      }
+      }else{
 
+      }
     }
     return [
       "title" => t("Edit")." ".$this->title,
       "content" => $content.drupal_render($form),
       "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
       'size' => 'large',
-      'form_errors' => $form_errors
+      'node' => $companyInfo,
     ];
   }
 
@@ -43,5 +51,9 @@ class ShipCustomer {
     }
     $output .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
     return $output;
+  }
+
+  protected function getNodeById($id ){
+    return node_load($id);
   }
 }
