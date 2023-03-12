@@ -6,6 +6,7 @@ define('FORMS_DIR','forms');
 require_once (CLASSES_DIR.'/shipmanager.class.php');
 require_once (CLASSES_DIR.'/ShipCustomer.class.php');
 require_once (CLASSES_DIR.'/ShipOwner.class.php');
+require_once (CLASSES_DIR.'/Ship.class.php');
 
 require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
@@ -13,6 +14,7 @@ require_once(HELPERS_DIR.'/NodeHelper.php');
 
 require_once(FORMS_DIR.'/CustomerForm.php');
 require_once(FORMS_DIR.'/ShipOwnerForm.php');
+require_once(FORMS_DIR.'/ShipForm.php');
 
 class_exists('Prometheus') && Prometheus::register(
   array(
@@ -61,6 +63,25 @@ class_exists('Prometheus') && Prometheus::register(
         )
       )
     ),
+    'Ship' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
   )
 );
 
@@ -86,6 +107,14 @@ function ship_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['ship-form'] = array(
+    'title' => 'Ship form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -102,6 +131,14 @@ function ship_owner_form($form, &$form_state) {
   // Add a textfield to the form.
   $shipOwnerForm = new ShipOwnerForm();
   $form = $shipOwnerForm->form;
+
+  return $form;
+}
+
+function ship_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $shipForm = new ShipForm();
+  $form = $shipForm->form;
 
   return $form;
 }
@@ -131,6 +168,13 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
         $formModel->setFormValue($form,$node);
       }
       break;
+    case 'ship_form':
+        $formModel = new ShipForm();
+        if(isset($_GET['id'])){
+          $node = node_load($_GET['id']);
+          $formModel->setFormValue($form,$node);
+        }
+        break;
       
   }
 
