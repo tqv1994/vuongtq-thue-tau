@@ -3,6 +3,8 @@ class ShipOwner {
 
   protected $title = "";
 
+  protected $viewName = "quan_ly_chu_tau";
+
   public function __construct()
   {
     $this->title = t("Ship Owner");
@@ -28,6 +30,7 @@ class ShipOwner {
       }else{
         if($id = $formModel->saveForm($_POST, $node)){
           return [
+            'forceReload' => $this->viewName,
             'title' => "Sửa $this->title",
             'content' => '<span class="text-success">'.t('Update').' ' . $this->title . ' '.t('success').'</span>',
             'footer' =>
@@ -61,7 +64,7 @@ class ShipOwner {
       }else{
         if($id = $formModel->saveForm($_POST, $node)){
           return [
-            'forceReload' => '#crud-datatable-pjax',
+            'forceReload' => $this->viewName,
             'title' => "Tạo Mới $this->title",
             'content' => '<span class="text-success">'.t('Create').' ' . $this->title . ' '.t('success').'</span>',
             'footer' =>
@@ -83,7 +86,7 @@ class ShipOwner {
     if(isset($_POST)){
       $form = new ShipOwnerForm();
       $form->delete($id);
-      return ['forceClose' => true];
+      return ['forceClose' => true, 'forceReload' => $this->viewName,];
     }
   }
 
