@@ -1,4 +1,4 @@
-<?php $pathUrl = "/shipcustomer/"; ?>
+<?php $pathUrl = "/shipowner/"; ?>
 <table class="table table-bordered ">
   <?php if (!empty($title) || !empty($caption)): ?>
     <caption><?php print $caption . $title; ?></caption>

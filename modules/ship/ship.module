@@ -5,12 +5,14 @@ define('FORMS_DIR','forms');
 
 require_once (CLASSES_DIR.'/shipmanager.class.php');
 require_once (CLASSES_DIR.'/ShipCustomer.class.php');
+require_once (CLASSES_DIR.'/ShipOwner.class.php');
 
 require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
 require_once(HELPERS_DIR.'/NodeHelper.php');
 
 require_once(FORMS_DIR.'/CustomerForm.php');
+require_once(FORMS_DIR.'/ShipOwnerForm.php');
 
 class_exists('Prometheus') && Prometheus::register(
   array(
@@ -22,6 +24,25 @@ class_exists('Prometheus') && Prometheus::register(
     ),
     'ShipManager' => array(),
     'ShipCustomer' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
+    'ShipOwner' => array(
       'paths' =>array(
         'edit' => array(
           'view' => array(
@@ -57,114 +78,30 @@ function ship_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['ship-owner-form'] = array(
+    'title' => 'Ship owner form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_owner_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
 
 function ship_customer_form($form, &$form_state) {
   // Add a textfield to the form.
-  $form['contact_info_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Name'),
-    '#required' => TRUE,
-    '#default_value' => ""
-  );
+  $customerForm = new CustomerForm();
+  $form = $customerForm->form;
 
-  $form['contact_info_honorific'] = array(
-    '#type' => 'select',
-    '#title' => t('Honorific'),
-    '#options' => array(
-      'Mr.' => 'Mr.',
-      'Ms.' => 'Ms.',
-      'Mrs.' => 'Mrs.',
-      'Captain' => 'Captain'
-    ),
-    '#default_value' => "Mr.",
-  );
+  return $form;
+}
 
-  $form['contact_info_job_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Job Title'),
-  );
-
-  $form['contact_info_telephone'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Telephone'),
-    '#required' => TRUE,
-  );
-
-  $form['contact_info_mobile'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mobile'),
-  );
-
-  $form['contact_info_fax'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Fax'),
-  );
-
-  $form['contact_info_email'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Email'),
-    '#required' => TRUE,
-  );
-
-  $form['contact_info_msn_skype'] = array(
-    '#type' => 'textfield',
-    '#title' => t('MSN/Skype'),
-  );
-
-  $form['contact_info_facebook_twitter'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Facebook/Twitter'),
-  );
-
-  $form['company_info_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Name'),
-    '#required' => TRUE,
-  );
-
-  $form['company_info_country'] = array(
-    '#type' => 'select',
-    '#title' => t('Country'),
-    '#options' => TaxonomyHelper::getCountriesOptions(),
-    '#required' => TRUE,
-  );
-
-  $form['company_info_state_province'] = array(
-    '#type' => 'textfield',
-    '#title' => t('State/Province'),
-    '#required' => TRUE,
-  );
-
-  $form['company_info_city'] = array(
-    '#type' => 'textfield',
-    '#title' => t('City'),
-    '#required' => TRUE,
-  );
-
-  $form['company_info_address'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Address'),
-  );
-
-  $form['company_info_core_busines'] = array(
-    '#type' => 'select',
-    '#title' => t('Core Business'),
-    '#options' => GlobalHelper::getCountryInfoCoreBusinessOptions(),
-    '#required' => TRUE,
-  );
-
-  $form['company_info_website'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Website'),
-  );
-
-  $form['company_info_body'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Company Profile'),
-  );
+function ship_owner_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $shipOwnerForm = new ShipOwnerForm();
+  $form = $shipOwnerForm->form;
 
   return $form;
 }
@@ -179,46 +116,22 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       $form[$key]['#attributes']['class'][] = 'form-select-sm';
     }
   }
-  if($form_id == 'ship_customer_form'){
-    $formModel = new CustomerForm();
-    if(isset($_GET['id'])){
-      $node = node_load($_GET['id']);
-      $formModel->setFormValue($form,$node);
-    }
-    $group = $formModel->fields;
-    foreach ($group['contact_info'] as $k => $item){
-      $form['contact_info_'.$item]['#prefix'] = '';
-      if($k == 0){
-        $form['contact_info_'.$item]['#prefix'] .= "<h4>".t('Contact Info')."</h4>";
+  switch ($form_id){
+    case 'ship_customer_form':
+      $formModel = new CustomerForm();
+      if(isset($_GET['id'])){
+        $node = node_load($_GET['id']);
+        $formModel->setFormValue($form,$node);
       }
-      if($k % 2 == 0){
-        $form['contact_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
-        $form['contact_info_'.$item]['#suffix'] = "</div>";
-        if(!isset($group['contact_info'][$k + 1])){
-          $form['contact_info_'.$item]['#suffix'] .= "</div>";
-        }
-      }else{
-        $form['contact_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
-        $form['contact_info_'.$item]['#suffix'] = "</div></div>";
+      break;
+    case 'ship_owner_form':
+      $formModel = new ShipOwnerForm();
+      if(isset($_GET['id'])){
+        $node = node_load($_GET['id']);
+        $formModel->setFormValue($form,$node);
       }
-    }
-
-    foreach ($group['company_info'] as $k => $item){
-      $form['company_info_'.$item]['#prefix'] = '';
-      if($k == 0){
-        $form['company_info_'.$item]['#prefix'] .= "<hr/><h4>".t('Company Info')."</h4>";
-      }
-      if($k % 2 == 0){
-        $form['company_info_'.$item]['#prefix'] .= "<div class='row'><div class='col-md-6 col-xs-12'>";
-        $form['company_info_'.$item]['#suffix'] = "</div>";
-        if(!isset($group['contact_info'][$k + 1])){
-          $form['company_info_'.$item]['#suffix'] .= "</div>";
-        }
-      }else{
-        $form['company_info_'.$item]['#prefix'] .= "<div class='col-md-6 col-xs-12'>";
-        $form['company_info_'.$item]['#suffix'] = "</div></div>";
-      }
-    }
+      break;
+      
   }
 
 }

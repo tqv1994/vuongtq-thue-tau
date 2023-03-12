@@ -1,11 +1,11 @@
 <?php
-class ShipCustomer {
+class ShipOwner {
 
   protected $title = "";
 
   public function __construct()
   {
-    $this->title = t("Customer");
+    $this->title = t("Ship Owner");
   }
 
   public function index(){
@@ -14,8 +14,8 @@ class ShipCustomer {
 
   public function edit($id){
     $node = $this->getNodeById($id);
-    $formModel = new CustomerForm();
-    $form = drupal_get_form('ship_customer_form');
+    $formModel = new ShipOwnerForm();
+    $form = drupal_get_form('ship_owner_form');
     $content = "";
     if(isset($_POST) && count($_POST) > 0){
       $messages = drupal_get_messages('error');
@@ -40,15 +40,15 @@ class ShipCustomer {
     return [
       "title" => t("Edit")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
+      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>".t("Save")."</button>",
       'size' => 'large',
     ];
   }
 
   public function create(){
     $node = null;
-    $formModel = new CustomerForm();
-    $form = drupal_get_form('ship_customer_form');
+    $formModel = new ShipOwnerForm();
+    $form = drupal_get_form('ship_owner_form');
     $content = "";
     if(isset($_POST) && count($_POST) > 0){
       $messages = drupal_get_messages('error');
@@ -74,14 +74,14 @@ class ShipCustomer {
     return [
       "title" => t("Create")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>Lưu</button>",
+      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>".t("Save")."</button>",
       'size' => 'large',
     ];
   }
 
   public function delete($id){
     if(isset($_POST)){
-      $form = new CustomerForm();
+      $form = new ShipOwnerForm();
       $form->delete($id);
       return ['forceClose' => true];
     }
