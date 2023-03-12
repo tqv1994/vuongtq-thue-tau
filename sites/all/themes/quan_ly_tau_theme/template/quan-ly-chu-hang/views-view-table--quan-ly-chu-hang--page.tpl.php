@@ -4,7 +4,7 @@
     <caption><?php print $caption . $title; ?></caption>
   <?php endif; ?>
   <div class="action-header mb-2">
-    <a href="<?php print $pathUrl ?>create" class="btn btn-success btn-sm" role="modal-remote"><?php print t('Create') ?></a>
+    <a href="<?php print $pathUrl ?>create" class="btn btn-success " role="modal-remote"><?php print t('Create') ?></a>
   </div>
   <?php if (!empty($header)) : ?>
     <thead>
@@ -30,12 +30,12 @@
       <?php endforeach; ?>
       <?php if(isset($row['nid'])): ?>
       <td class="text-center">
-          <a class="btn btn-sm btn-warning" role="modal-remote" href="<?php print $pathUrl ?>edit/?id=<?php echo $row['nid'] ?>">
+          <a class="btn  btn-warning" role="modal-remote" href="<?php print $pathUrl ?>edit/?id=<?php echo $row['nid'] ?>">
             <?php print t('Edit') ?>
           </a>
           <a data-pjax="0" role="modal-remote" data-request-method="post" href="<?php print $pathUrl ?>delete/<?php echo $row['nid'] ?>"
         data-toggle="tooltip" data-confirm-title="<?php print t("Warning") ?>"
-        data-confirm-message="<?php print t("Are you sure you want to delete?") ?>" data-original-title="<?php print t("Delete") ?>" class="btn btn-sm btn-danger">
+        data-confirm-message="<?php print t("Are you sure you want to delete?") ?>" data-original-title="<?php print t("Delete") ?>" class="btn  btn-danger">
             <?php print t('Delete') ?>
           </a>
       </td>

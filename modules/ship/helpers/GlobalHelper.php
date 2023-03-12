@@ -37,6 +37,8 @@ class GlobalHelper{
             return $node->$field['und'][0]['tid'];
         }else if(isset($node->$field['und'][0]['target_id'])){
             return $node->$field['und'][0]['target_id'];
+        }else{
+            return $node->$field;
         }
         return $value;
     }

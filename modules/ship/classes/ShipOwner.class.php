@@ -43,7 +43,7 @@ class ShipOwner {
     return [
       "title" => t("Edit")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>".t("Save")."</button>",
+      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
       'size' => 'large',
     ];
   }
@@ -68,7 +68,7 @@ class ShipOwner {
             'title' => "Tạo Mới $this->title",
             'content' => '<span class="text-success">'.t('Create').' ' . $this->title . ' '.t('success').'</span>',
             'footer' =>
-              "<a href='/shipcustomer/create' role='modal-remote' class='btn btn-success btn-sm'>".t('Add more')."</a>",
+              "<a href='/shipcustomer/create' role='modal-remote' class='btn btn-success '>".t('Add more')."</a>",
           ];
         }
 
@@ -77,7 +77,7 @@ class ShipOwner {
     return [
       "title" => t("Create")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary btn-sm' type='submit'>".t("Save")."</button>",
+      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
       'size' => 'large',
     ];
   }

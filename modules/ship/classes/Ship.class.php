@@ -1,12 +1,13 @@
 <?php
-class ShipCustomer {
+class Ship {
 
   protected $title = "";
-  protected $viewName = "quan_ly_chu_hang";
+
+  protected $viewName = "ship";
 
   public function __construct()
   {
-    $this->title = t("Customer");
+    $this->title = t("Ship");
   }
 
   public function index(){
@@ -15,8 +16,8 @@ class ShipCustomer {
 
   public function edit($id){
     $node = $this->getNodeById($id);
-    $formModel = new CustomerForm();
-    $form = drupal_get_form('ship_customer_form');
+    $formModel = new ShipForm();
+    $form = drupal_get_form('ship_form');
     $content = "";
     if(isset($_POST) && count($_POST) > 0){
       $messages = drupal_get_messages('error');
@@ -42,15 +43,14 @@ class ShipCustomer {
     return [
       "title" => t("Edit")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary ' type='submit'>Lưu</button>",
-      'size' => 'large',
+      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
     ];
   }
 
   public function create(){
     $node = null;
-    $formModel = new CustomerForm();
-    $form = drupal_get_form('ship_customer_form');
+    $formModel = new ShipForm();
+    $form = drupal_get_form('ship_form');
     $content = "";
     if(isset($_POST) && count($_POST) > 0){
       $messages = drupal_get_messages('error');
@@ -76,16 +76,15 @@ class ShipCustomer {
     return [
       "title" => t("Create")." ".$this->title,
       "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary ' type='submit'>Lưu</button>",
-      'size' => 'large',
+      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
     ];
   }
 
   public function delete($id){
     if(isset($_POST)){
-      $form = new CustomerForm();
+      $form = new ShipForm();
       $form->delete($id);
-      return ['forceClose' => true, 'forceReload' => $this->viewName];
+      return ['forceClose' => true, 'forceReload' => $this->viewName,];
     }
   }
 
