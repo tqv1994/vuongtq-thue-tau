@@ -206,14 +206,10 @@ function ModalRemote(modalId) {
     // Reload datatable if response contain forceReload field
     if (response.forceReload !== undefined && response.forceReload) {
       try {
-        if (response.forceReload == 'true') {
-          // Backwards compatible reload of fixed crud-datatable-pjax
-          $.pjax.reload({container: '#crud-datatable-pjax'});
-        } else {
-          $.pjax.reload({
+          reloadView(response.forceReload);
+          /*$.pjax.reload({
             container: response.forceReload
-          });
-        }
+          });*/
       }
       catch(err){
       }
@@ -387,4 +383,24 @@ function ModalRemote(modalId) {
       );
     }
   }
+}
+
+function reloadView(view, display = 'page'){
+  $.ajax({
+    url: Drupal.settings.basePath + 'views/ajax',
+    type: 'post',
+    data: {
+      view_name: view,
+      view_display_id: display, //your display id
+      view_args: [], // your views argument(s)
+    },
+    dataType: 'json',
+    success: function (response) {
+      if (response[1] !== undefined) {
+        var parent = $(document).find('.view-id-'+view).parent();
+        $(document).find('.view-id-'+view).remove();
+        parent.append(response[1].data);
+      }
+    }
+  });
 }
