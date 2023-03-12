@@ -1,6 +1,6 @@
 <?php
 
-class CustomerForm
+class ShipOwnerForm
 {
 
   public $form = array();
@@ -165,7 +165,7 @@ class CustomerForm
     }
     $companyInfo = null;
     $contactInfo = null;
-    $companyInfoId = $node->field_contact_company['und'][0]['target_id'] ?? null;
+    $companyInfoId = $node->field_company_info_ship_owner['und'][0]['target_id'] ?? null;
     if (!is_null($companyInfoId)) {
       $companyInfo = node_load($companyInfoId);
     }
@@ -179,7 +179,7 @@ class CustomerForm
           $form['company_info_' . $field]['#default_value'] = GlobalHelper::getValueOfNode($companyInfo, 'field_' . $field);
       }
     }
-    $contactInfoId = $node->field_contact_info['und'][0]['target_id'] ?? null;
+    $contactInfoId = $node->field_contact_info_ship_owner['und'][0]['target_id'] ?? null;
     if (!is_null($contactInfoId)) {
       $contactInfo = node_load($contactInfoId);
     }
@@ -202,18 +202,18 @@ class CustomerForm
       $title = $data['contact_info_title'];
     }
     if (is_null($node)) {
-      $node = insertNewNode('customer', $title, []);
+      $node = insertNewNode('ship_owner', $title, []);
     }
 
     $contactInfo = null;
-    $contactInfoId = $node->field_contact_info['und'][0]['target_id'] ?? null;
+    $contactInfoId = $node->field_contact_info_ship_owner['und'][0]['target_id'] ?? null;
     if (!is_null($contactInfoId)) {
       $contactInfo = node_load($contactInfoId);
     }
     $contactInfoId = $this->saveContactInfo($data, $contactInfo);
 
     $companyInfo = null;
-    $companyInfoId = $node->field_contact_company['und'][0]['target_id'] ?? null;
+    $companyInfoId = $node->field_company_info_ship_owner['und'][0]['target_id'] ?? null;
     if (!is_null($companyInfoId)) {
       $companyInfo = node_load($companyInfoId);
     }
@@ -221,8 +221,8 @@ class CustomerForm
 
     $entity = entity_metadata_wrapper("node", $node);
     $entity->title->set($title);
-    $entity->field_contact_info->set($contactInfoId);
-    $entity->field_contact_company->set($companyInfoId);
+    $entity->field_contact_info_ship_owner->set($contactInfoId);
+    $entity->field_company_info_ship_owner->set($companyInfoId);
     $entity->save();
     return $entity->getIdentifier();
   }
@@ -246,9 +246,6 @@ class CustomerForm
     $entity = entity_metadata_wrapper("node", $node);
     foreach ($formData as $key => $value) {
       if (isset($node->{'field_' . $key})) {
-        if (empty($value)) {
-          $value = null;
-        }
         $entity->{'field_' . $key}->set($value);
       }else if(isset($node->{$key})){
         $entity->{$key}->set($value);
@@ -276,9 +273,6 @@ class CustomerForm
     $entity = entity_metadata_wrapper("node", $node);
     foreach ($formData as $key => $value) {
       if (isset($node->{'field_' . $key})) {
-        if (empty($value)) {
-          $value = null;
-        }
         $entity->{'field_' . $key}->set($value);
       }else if(isset($node->body) && $key == "body"){
         $entity->{$key}->set(array(
