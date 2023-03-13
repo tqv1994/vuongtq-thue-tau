@@ -1,8 +1,9 @@
 <?php
 
-class ShipOwnerForm
+class ShipOwnerForm extends BaseForm
 {
 
+  public $formId = "ship_owner_form";
   public $form = array();
 
   public $fields = array('contact_info' => array(
@@ -27,10 +28,6 @@ class ShipOwnerForm
     )
   );
 
-  public function __construct(){
-    $this->beforeLoadForm();
-  }
-
   public function beforeLoadForm(){
     $this->form = array(
       'contact_info_title' => array(
@@ -52,7 +49,7 @@ class ShipOwnerForm
       ),
       'contact_info_job_title' => array(
           '#type' => 'textfield',
-          '#title' => t('Job Title'), 
+          '#title' => t('Job Title'),
       ),
       'contact_info_telephone' => array(
         '#type' => 'textfield',

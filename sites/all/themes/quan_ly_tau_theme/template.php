@@ -6,7 +6,7 @@ function quan_ly_tau_theme_preprocess_html(&$variables)
 {
   dsm(current_path());
   $theme_path = drupal_get_path('theme', 'quan_ly_tau_theme');
-  drupal_add_css($theme_path . '/assets/css/core.css', array('group' => JS_THEME));
+  drupal_add_css($theme_path . '/assets/css/core.css', array('group' => CSS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/modal.js', array('group' => JS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/ajaxcrud.js', array('group' => JS_THEME));
   if(current_path() == 'user/login'){

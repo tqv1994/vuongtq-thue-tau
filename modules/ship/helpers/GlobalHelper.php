@@ -42,4 +42,14 @@ class GlobalHelper{
         }
         return $value;
     }
+
+    public static function getErrors(){
+      $messages = drupal_get_messages('error');
+      $results = [];
+      foreach ($messages['error'] as $message){
+        if($message == "Không thể tạo tập tin.") continue;
+        $results[] = $message;
+      }
+      return $results;
+    }
 }

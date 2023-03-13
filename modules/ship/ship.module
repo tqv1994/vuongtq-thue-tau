@@ -3,6 +3,7 @@ define('CLASSES_DIR','classes');
 define('HELPERS_DIR','helpers');
 define('FORMS_DIR','forms');
 
+require_once (CLASSES_DIR.'/BaseNode.class.php');
 require_once (CLASSES_DIR.'/shipmanager.class.php');
 require_once (CLASSES_DIR.'/ShipCustomer.class.php');
 require_once (CLASSES_DIR.'/ShipOwner.class.php');
@@ -12,6 +13,7 @@ require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
 require_once(HELPERS_DIR.'/NodeHelper.php');
 
+require_once(FORMS_DIR.'/BaseForm.php');
 require_once(FORMS_DIR.'/CustomerForm.php');
 require_once(FORMS_DIR.'/ShipOwnerForm.php');
 require_once(FORMS_DIR.'/ShipForm.php');
@@ -175,7 +177,7 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
           $formModel->setFormValue($form,$node);
         }
         break;
-      
+
   }
 
 }

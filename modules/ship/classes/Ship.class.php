@@ -1,103 +1,12 @@
 <?php
-class Ship {
-
-  protected $title = "";
+class Ship extends BaseNode {
 
   protected $viewName = "ship";
 
+
   public function __construct()
   {
+    $this->formClass = ShipForm::class;
     $this->title = t("Ship");
-  }
-
-  public function index(){
-
-  }
-
-  public function edit($id){
-    $node = $this->getNodeById($id);
-    $formModel = new ShipForm();
-    $form = drupal_get_form('ship_form');
-    $content = "";
-    if(isset($_POST) && count($_POST) > 0){
-      $messages = drupal_get_messages('error');
-      if(count($messages['error']) > 0){
-        $errors = [];
-        foreach ($messages['error'] as $error){
-          $errors[] = $error;
-        }
-        $content .= $this->getValidateErrorHtml($errors);
-      }else{
-        if($id = $formModel->saveForm($_POST, $node)){
-          return [
-            'forceReload' => $this->viewName,
-            'title' => "Sửa $this->title",
-            'content' => '<span class="text-success">'.t('Update').' ' . $this->title . ' '.t('success').'</span>',
-            'footer' =>
-              "<a data-bs-dismiss='modal' class='btn btn-default'>".t('Close')."</a>",
-          ];
-        }
-
-      }
-    }
-    return [
-      "title" => t("Edit")." ".$this->title,
-      "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
-    ];
-  }
-
-  public function create(){
-    $node = null;
-    $formModel = new ShipForm();
-    $form = drupal_get_form('ship_form');
-    $content = "";
-    if(isset($_POST) && count($_POST) > 0){
-      $messages = drupal_get_messages('error');
-      if(count($messages['error']) > 0){
-        $errors = [];
-        foreach ($messages['error'] as $error){
-          $errors[] = $error;
-        }
-        $content .= $this->getValidateErrorHtml($errors);
-      }else{
-        if($id = $formModel->saveForm($_POST, $node)){
-          return [
-            'forceReload' => $this->viewName,
-            'title' => "Tạo Mới $this->title",
-            'content' => '<span class="text-success">'.t('Create').' ' . $this->title . ' '.t('success').'</span>',
-            'footer' =>
-              "<a href='/shipcustomer/create' role='modal-remote' class='btn btn-success '>".t('Add more')."</a>",
-          ];
-        }
-
-      }
-    }
-    return [
-      "title" => t("Create")." ".$this->title,
-      "content" => $content.drupal_render($form),
-      "footer" => "<button class='btn btn-primary ' type='submit'>".t("Save")."</button>",
-    ];
-  }
-
-  public function delete($id){
-    if(isset($_POST)){
-      $form = new ShipForm();
-      $form->delete($id);
-      return ['forceClose' => true, 'forceReload' => $this->viewName,];
-    }
-  }
-
-  protected function getValidateErrorHtml($errors){
-    $output = '<div class="alert alert-danger alert-dismissible p-2" role="alert">';
-    foreach ($errors as $error){
-      $output .= "<span>".$error."</span><br/>";
-    }
-    $output .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-    return $output;
-  }
-
-  protected function getNodeById($id ){
-    return node_load($id);
   }
 }
