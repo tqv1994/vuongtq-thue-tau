@@ -48,12 +48,8 @@ class BaseNode
     $form = drupal_get_form($formModel->formId);
     $content = "";
     if (isset($_POST) && count($_POST) > 0) {
-      $messages = drupal_get_messages('error');
-      if (count($messages['error']) > 0) {
-        $errors = [];
-        foreach ($messages['error'] as $error) {
-          $errors[] = $error;
-        }
+      $errors = GlobalHelper::getErrors();
+      if (count($errors) > 0) {
         $content .= $this->getValidateErrorHtml($errors);
       } else {
         if ($id = $formModel->saveForm($_POST, $node)) {

@@ -292,7 +292,7 @@ global $user;
 <button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
 <!-- END: Footer-->
 <div id="ajaxCrudModal" class="fade modal" role="dialog" tabindex="-1">
-  <div class="modal-dialog modal-simple">
+  <div class="modal-dialog modal-simple modal-dialog-scrollable">
     <div class="modal-content p-0">
       <div class="modal-header">
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

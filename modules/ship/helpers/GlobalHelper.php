@@ -52,4 +52,17 @@ class GlobalHelper{
       }
       return $results;
     }
+
+    public static function getOrderStatusOptions(){
+      return array(
+        "pending"=>t("Pending"),
+        "in_progress"=>t("In Progress"),
+        "shipped"=>t("Shipped"),
+        "delivered"=>t("Delivered"),
+        "cancelled"=>t("Cancelled"),
+        "on_hold"=>t("On hold"),
+        "disputed"=>t("Disputed"),
+        "complete"=>t("Complete"),
+      );
+    }
 }

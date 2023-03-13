@@ -1,5 +1,5 @@
 <?php $pathUrl = "/shipowner/"; ?>
-<table class="table table-bordered ">
+<table class="table table-bordered table-responsive-sm table-sm table-striped table-hover">
   <?php if (!empty($title) || !empty($caption)): ?>
     <caption><?php print $caption . $title; ?></caption>
   <?php endif; ?>
