@@ -1,8 +1,8 @@
 <?php
 
-class CustomerForm
+class CustomerForm extends BaseForm
 {
-
+  public $formId = "ship_customer_form";
   public $form = array();
 
   public $fields = array('contact_info' => array(
@@ -27,11 +27,8 @@ class CustomerForm
     )
   );
 
-  public function __construct(){
-    $this->beforeLoadForm();
-  }
-
   public function beforeLoadForm(){
+    parent::beforeLoadForm();
     $this->form = array(
       'contact_info_title' => array(
         '#type' => 'textfield',
@@ -52,7 +49,7 @@ class CustomerForm
       ),
       'contact_info_job_title' => array(
           '#type' => 'textfield',
-          '#title' => t('Job Title'), 
+          '#title' => t('Job Title'),
       ),
       'contact_info_telephone' => array(
         '#type' => 'textfield',
@@ -154,7 +151,6 @@ class CustomerForm
         $this->form['company_info_'.$item]['#suffix'] = "</div></div>";
       }
     }
-    return;
   }
 
 
