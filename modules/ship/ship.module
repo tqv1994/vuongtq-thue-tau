@@ -9,6 +9,7 @@ require_once (CLASSES_DIR.'/ShipCustomer.class.php');
 require_once (CLASSES_DIR.'/ShipOwner.class.php');
 require_once (CLASSES_DIR.'/Ship.class.php');
 require_once (CLASSES_DIR.'/ShipOrder.class.php');
+require_once (CLASSES_DIR.'/ShipContract.class.php');
 
 require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
@@ -19,6 +20,7 @@ require_once(FORMS_DIR.'/CustomerForm.php');
 require_once(FORMS_DIR.'/ShipOwnerForm.php');
 require_once(FORMS_DIR.'/ShipForm.php');
 require_once(FORMS_DIR.'/ShipOrderForm.php');
+require_once(FORMS_DIR.'/ContractForm.php');
 
 class_exists('Prometheus') && Prometheus::register(
   array(
@@ -105,6 +107,25 @@ class_exists('Prometheus') && Prometheus::register(
         )
       )
     ),
+    'ShipContract' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
   )
 );
 
@@ -146,6 +167,14 @@ function ship_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['contract-form'] = array(
+    'title' => 'Contract form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_contract_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -178,6 +207,14 @@ function ship_order_form($form, &$form_state) {
   // Add a textfield to the form.
   $shipForm = new ShipOrderForm();
   $form = $shipForm->form;
+
+  return $form;
+}
+
+function ship_contract_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $shipContractForm = new ContractForm();
+  $form = $shipContractForm->form;
 
   return $form;
 }
@@ -216,6 +253,13 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
         break;
     case 'ship_order_form':
       $formModel = new ShipOrderForm();
+      if(isset($_GET['id'])){
+        $node = node_load($_GET['id']);
+        $formModel->setFormValue($form,$node);
+      }
+      break;
+    case 'ship_contract_form':
+      $formModel = new ContractForm();
       if(isset($_GET['id'])){
         $node = node_load($_GET['id']);
         $formModel->setFormValue($form,$node);

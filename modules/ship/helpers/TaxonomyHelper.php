@@ -41,4 +41,13 @@ class TaxonomyHelper{
     }
     return $options;
   }
+
+  public static function getTermNameById($id){
+    $term = taxonomy_term_load($id);
+    if ($term) {
+      $vocabulary = taxonomy_vocabulary_load($term->vid);
+      return $term->name;
+    }
+    return "";
+  }
 }
