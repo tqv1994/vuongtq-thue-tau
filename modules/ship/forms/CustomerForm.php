@@ -55,10 +55,18 @@ class CustomerForm extends BaseForm
         '#type' => 'textfield',
         '#title' => t('Telephone'),
         '#required' => TRUE,
+        '#attributes' => array(
+          'pattern' => '[0-9]{12,}',
+          'title' => t('Please enter a valid 12-digit phone number.'),
+        ),
       ),
       'contact_info_mobile' => array(
         '#type' => 'textfield',
         '#title' => t('Mobile'),
+        '#attributes' => array(
+          'pattern' => '[0-9]{12,}',
+          'title' => t('Please enter a valid 12-digit phone number.'),
+        ),
       ),
       'contact_info_fax' => array(
         '#type' => 'textfield',
@@ -68,6 +76,7 @@ class CustomerForm extends BaseForm
         '#type' => 'textfield',
         '#title' => t('Email'),
         '#required' => TRUE,
+        '#pattern' => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
       ),
       'contact_info_msn_skype' => array(
         '#type' => 'textfield',
@@ -109,7 +118,7 @@ class CustomerForm extends BaseForm
         '#required' => TRUE,
       ),
       'company_info_website' => array(
-        '#type' => 'textfield',
+        '#type' => 'url',
         '#title' => t('Website'),
       ),
       'company_info_body' => array(
