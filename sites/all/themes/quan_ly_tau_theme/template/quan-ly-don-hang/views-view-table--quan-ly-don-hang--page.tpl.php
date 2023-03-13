@@ -1,4 +1,4 @@
-<?php $pathUrl = "/ship/"; ?>
+<?php $pathUrl = "/shiporder/"; ?>
 <table class="table table-bordered table-responsive-sm table-sm table-striped table-hover">
   <?php if (!empty($title) || !empty($caption)): ?>
     <caption><?php print $caption . $title; ?></caption>
@@ -29,16 +29,16 @@
         </td>
       <?php endforeach; ?>
       <?php if(isset($row['nid'])): ?>
-      <td class="text-center">
+        <td class="text-center">
           <a class="btn  btn-warning" role="modal-remote" href="<?php print $pathUrl ?>edit/?id=<?php echo $row['nid'] ?>">
             <?php print t('Edit') ?>
           </a>
           <a data-pjax="0" role="modal-remote" data-request-method="post" href="<?php print $pathUrl ?>delete/<?php echo $row['nid'] ?>"
-        data-toggle="tooltip" data-confirm-title="<?php print t("Warning") ?>"
-        data-confirm-message="<?php print t("Are you sure you want to delete?") ?>" data-original-title="<?php print t("Delete") ?>" class="btn  btn-danger">
+             data-toggle="tooltip" data-confirm-title="<?php print t("Warning") ?>"
+             data-confirm-message="<?php print t("Are you sure you want to delete?") ?>" data-original-title="<?php print t("Delete") ?>" class="btn  btn-danger">
             <?php print t('Delete') ?>
           </a>
-      </td>
+        </td>
       <?php endif; ?>
     </tr>
   <?php endforeach; ?>

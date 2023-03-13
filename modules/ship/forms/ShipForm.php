@@ -5,6 +5,8 @@ class ShipForm extends BaseForm
 
   public $formId = "ship_form";
 
+  public $nodeType = "ship";
+
   public $form = array();
 
   public $fields = array(

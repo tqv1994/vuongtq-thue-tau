@@ -5,6 +5,8 @@ class BaseForm
 
   public $formId = "";
 
+  public $nodeType = "";
+
   public $form = array();
 
   public $fields = array();
@@ -36,7 +38,7 @@ class BaseForm
       $title = $data['title'];
     }
     if (is_null($node)) {
-      $node = insertNewNode('ship', $title, []);
+      $node = insertNewNode($this->nodeType, $title, []);
     }
     $entity = entity_metadata_wrapper("node", $node);
     foreach ($data as $key => $value) {
@@ -44,16 +46,19 @@ class BaseForm
         $entity->{$key}->set($value);
       }
     }
+    $this->beforeSave($entity, $data, $node);
     $entity->save();
     return $entity->getIdentifier();
   }
-
-
 
   public function delete($id){
     if($node = node_load($id)){
       return NodeHelper::deleteNode($node);
     }
     return false;
+  }
+
+  public function beforeSave(&$entity, $data, $node){
+      return true;
   }
 }
