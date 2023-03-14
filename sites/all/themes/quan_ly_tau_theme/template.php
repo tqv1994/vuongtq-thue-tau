@@ -9,6 +9,7 @@ function quan_ly_tau_theme_preprocess_html(&$variables)
   drupal_add_css($theme_path . '/assets/css/core.css', array('group' => CSS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/modal.js', array('group' => JS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/ajaxcrud.js', array('group' => JS_THEME));
+
   if(current_path() == 'user/login'){
     drupal_add_css($theme_path . '/app-assets/css/pages/authentication.css', array('group' => CSS_THEME, 'media' => 'all', 'weight' => -999));
     drupal_add_js($theme_path . '/app-assets/vendors/js/forms/validation/jquery.validate.min.js', array('group' => JS_THEME, 'media' => 'all', 'weight' => -999));
@@ -41,7 +42,12 @@ function quan_ly_tau_theme_preprocess_html(&$variables)
   else if(current_path() == 'nguoi-dung'){ // Quản lý thu chi
     drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/user.js', array('group' => JS_THEME));
   }
+  drupal_add_js($theme_path . '/assets/js/main.js', array('group' => JS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/main.js', array('group' => JS_THEME));
+  drupal_add_js($theme_path . '/app-assets/vendors/js/popper/popper.min.js', array('group' => JS_THEME));
+  drupal_add_js($theme_path . '/app-assets/vendors/js/menu.js', array('group' => JS_THEME));
+  drupal_add_js($theme_path . '/app-assets/vendors/js/dropdown-hover.js', array('group' => JS_THEME));
+  drupal_add_css($theme_path . '/app-assets/vendors/fonts/fontawesome.css', array('group' => CSS_THEME));
 }
 
 function getMainMenuQLHD(){

@@ -1,7 +1,7 @@
-<?php $pathUrl = "/shipowner/"; ?>
+<?php $pathUrl = "/shipcustomdept/"; ?>
 <div class="card">
   <h5 class="card-header">
-    <?php print t('Ship Owner Manager') ?>
+    <?php print t('Customer Dept Manager') ?>
   </h5>
   <div class="card-body">
     <table class="table table-bordered table-responsive table-striped table-hover">

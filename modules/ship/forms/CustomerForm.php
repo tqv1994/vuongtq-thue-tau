@@ -118,7 +118,7 @@ class CustomerForm extends BaseForm
         '#required' => TRUE,
       ),
       'company_info_website' => array(
-        '#type' => 'url',
+        '#type' => 'textfield',
         '#title' => t('Website'),
       ),
       'company_info_body' => array(
