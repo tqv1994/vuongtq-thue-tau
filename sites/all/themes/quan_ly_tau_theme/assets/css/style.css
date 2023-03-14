@@ -9,9 +9,6 @@
   cursor: none;
   opacity: 1;
 }
-.view-filters{
-  display: none;
-}
 .select2-container--default .select2-selection--single .select2-selection__arrow b{
   border-color: unset;
   border-style: unset;

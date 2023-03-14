@@ -9,8 +9,8 @@ class ShipContract extends BaseNode {
   {
     $this->title = t("Contract");
     $this->formClass = ContractForm::class;
-    $this->sizeUpdate = "normal";
-    $this->sizeCreate = "normal";
+    $this->sizeUpdate = "large";
+    $this->sizeCreate = "large";
   }
 
 }

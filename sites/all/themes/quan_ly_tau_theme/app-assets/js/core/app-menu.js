@@ -196,16 +196,16 @@
           .on('mouseleave', function (event) {
             $(this).removeClass('show');
           });
-        /* ? Uncomment to enable all DD open on hover
-        $('body[data-open="hover"] .dropdown a').on('click', function (e) {
-          if (menuType == 'horizontal-menu') {
-            var $this = $(this);
-            if ($this.hasClass('dropdown-toggle')) {
-              return false;
-            }
-          }
-        });
-        */
+        // ? Uncomment to enable all DD open on hover
+        // $('body[data-open="hover"] .dropdown a').on('click', function (e) {
+        //   if (menuType == 'horizontal-menu') {
+        //     var $this = $(this);
+        //     if ($this.hasClass('dropdown-toggle')) {
+        //       return false;
+        //     }
+        //   }
+        // });
+
       }
 
       // Added data attribute brand-center for navbar-brand-center
