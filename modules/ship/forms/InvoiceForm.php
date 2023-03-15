@@ -1,21 +1,20 @@
 <?php
 
-class ContractForm extends BaseForm
+class InvoiceForm extends BaseForm
 {
 
-  public $formId = "ship_contract_form";
+  public $formId = "ship_invoice_form";
 
-  public $nodeType = "contract";
+  public $nodeType = "invoice";
 
   public $form = array();
 
   public $fields = array(
     'title',
-    'field_order',
-    'field_contract_date',
-    'field_contract_duration',
-    'field_contract_value',
-    'field_file',
+    'field_invoice_order',
+    'field_invoice_date',
+    'field_invoice_amount',
+    'field_invoice_status',
   );
 
   public function beforeLoadForm(){
@@ -26,11 +25,11 @@ class ContractForm extends BaseForm
     $this->form = array(
       'title' => array(
         '#type' => 'textfield',
-        '#title' => t('Name'),
+        '#title' => t('Invoice ID'),
         '#required' => TRUE,
         '#default_value' => "",
       ),
-      'field_order' => array(
+      'field_invoice_order' => array(
         '#type' => 'tableselect',
         '#title' => t('Ship Order'),
         '#options' => $orderTableOptions['options'],
@@ -39,26 +38,22 @@ class ContractForm extends BaseForm
         '#prefix' => "<label>".t('Ship Order')."</label>",
         '#multiple' => FALSE
       ),
-      'field_contract_date' => array(
+      'field_invoice_date' => array(
         '#type' => 'textfield',
-        '#title' => t('Contract Date'),
+        '#title' => t('Invoice Date'),
         '#required' => TRUE,
         '#attributes' => array(
           'class' =>array("flatpickr-date"),
           'placeholder' => "DD/MM/YYYY"
         ),
       ),
-      'field_contract_duration' => array(
+      'field_invoice_amount' => array(
         '#type' => 'textfield',
-        '#title' => t('Contract Duration'),
+        '#title' => t('Invoice Amount'),
       ),
-      'field_contract_value' => array(
+      'field_invoice_status' => array(
         '#type' => 'textfield',
-        '#title' => t('Contract Value'),
-      ),
-      'field_file' => array(
-        '#type' => 'file',
-        '#title' => t('File'),
+        '#title' => t('Status'),
       ),
     );
     return;

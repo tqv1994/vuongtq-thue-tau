@@ -10,6 +10,8 @@ require_once (CLASSES_DIR.'/ShipOwner.class.php');
 require_once (CLASSES_DIR.'/Ship.class.php');
 require_once (CLASSES_DIR.'/ShipOrder.class.php');
 require_once (CLASSES_DIR.'/ShipContract.class.php');
+require_once (CLASSES_DIR.'/ShipInvoice.class.php');
+require_once (CLASSES_DIR.'/ShipVoyage.class.php');
 
 require_once(HELPERS_DIR.'/TaxonomyHelper.php');
 require_once(HELPERS_DIR.'/GlobalHelper.php');
@@ -21,6 +23,9 @@ require_once(FORMS_DIR.'/ShipOwnerForm.php');
 require_once(FORMS_DIR.'/ShipForm.php');
 require_once(FORMS_DIR.'/ShipOrderForm.php');
 require_once(FORMS_DIR.'/ContractForm.php');
+require_once(FORMS_DIR.'/InvoiceForm.php');
+require_once(FORMS_DIR.'/VoyageForm.php');
+
 
 class_exists('Prometheus') && Prometheus::register(
   array(
@@ -126,6 +131,44 @@ class_exists('Prometheus') && Prometheus::register(
         )
       )
     ),
+    'ShipInvoice' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
+    'ShipVoyage' => array(
+      'paths' =>array(
+        'edit' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'create' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        ),
+        'delete' => array(
+          'view' => array(
+            'json' => array()  // use json to pass values via ajax calls
+          ),
+        )
+      )
+    ),
   )
 );
 
@@ -175,6 +218,22 @@ function ship_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['invoice-form'] = array(
+    'title' => 'Invoice form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_invoice_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['voyage-form'] = array(
+    'title' => 'Voyage form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ship_voyage_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -215,7 +274,20 @@ function ship_contract_form($form, &$form_state) {
   // Add a textfield to the form.
   $shipContractForm = new ContractForm();
   $form = $shipContractForm->form;
+  return $form;
+}
 
+function ship_invoice_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $shipInvoiceForm = new InvoiceForm();
+  $form = $shipInvoiceForm->form;
+  return $form;
+}
+
+function ship_voyage_form($form, &$form_state) {
+  // Add a textfield to the form.
+  $shipVoyageForm = new VoyageForm();
+  $form = $shipVoyageForm->form;
   return $form;
 }
 
@@ -229,12 +301,14 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       $form[$key]['#attributes']['class'][] = 'form-select';
     }
   }
+  //$form['#attached']['js'][] = drupal_get_path('module', 'ship') . '/assets/js/form.js';
   if(strpos($form_id, 'views_exposed_form') !== FALSE) {
     $form["#prefix"] = "<div class='card'><h5 class='card-header'>".t("Filter")."</h5>";
     $form["#prefix"] .= "<div class='card-body'>";
     $form['#suffix'] = "</div></div></div>";
     foreach (element_children($form) as $key){
       if($form[$key]['#type'] == 'submit'){
+        $form[$key]['#value'] = t("Search");
         $form[$key]['#attributes']['class'][] = 'btn btn-success';
       }else{
 //        $form[$key]['#attributes']['placeholder'] = $form[$key]['#title'];
@@ -274,6 +348,20 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       break;
     case 'ship_contract_form':
       $formModel = new ContractForm();
+      if(isset($_GET['id'])){
+        $node = node_load($_GET['id']);
+        $formModel->setFormValue($form,$node);
+      }
+      break;
+    case 'ship_invoice_form':
+      $formModel = new InvoiceForm();
+      if(isset($_GET['id'])){
+        $node = node_load($_GET['id']);
+        $formModel->setFormValue($form,$node);
+      }
+      break;
+    case 'ship_voyage_form':
+      $formModel = new VoyageForm();
       if(isset($_GET['id'])){
         $node = node_load($_GET['id']);
         $formModel->setFormValue($form,$node);

@@ -1,21 +1,21 @@
 <?php
 
-class ContractForm extends BaseForm
+class VoyageForm extends BaseForm
 {
 
-  public $formId = "ship_contract_form";
+  public $formId = "ship_voyage_form";
 
-  public $nodeType = "contract";
+  public $nodeType = "voyage";
 
   public $form = array();
 
   public $fields = array(
     'title',
-    'field_order',
-    'field_contract_date',
-    'field_contract_duration',
-    'field_contract_value',
-    'field_file',
+    'field_order_voyage',
+    'field_ship_voyage',
+    'field_location',
+    'field_voyage_start_date',
+    'field_voyage_status'
   );
 
   public function beforeLoadForm(){
@@ -30,7 +30,7 @@ class ContractForm extends BaseForm
         '#required' => TRUE,
         '#default_value' => "",
       ),
-      'field_order' => array(
+      'field_order_voyage' => array(
         '#type' => 'tableselect',
         '#title' => t('Ship Order'),
         '#options' => $orderTableOptions['options'],
@@ -39,26 +39,28 @@ class ContractForm extends BaseForm
         '#prefix' => "<label>".t('Ship Order')."</label>",
         '#multiple' => FALSE
       ),
-      'field_contract_date' => array(
+      'field_ship_voyage' => array(
         '#type' => 'textfield',
-        '#title' => t('Contract Date'),
+        '#title' => t('Ship'),
+        '#required' => TRUE,
+      ),
+      'field_location' => array(
+        '#type' => 'textfield',
+        '#title' => t('Location'),
+        '#required' => TRUE,
+      ),
+      'field_voyage_start_date' => array(
+        '#type' => 'textfield',
+        '#title' => t('Date'),
         '#required' => TRUE,
         '#attributes' => array(
           'class' =>array("flatpickr-date"),
           'placeholder' => "DD/MM/YYYY"
         ),
       ),
-      'field_contract_duration' => array(
+      'field_voyage_status' => array(
         '#type' => 'textfield',
-        '#title' => t('Contract Duration'),
-      ),
-      'field_contract_value' => array(
-        '#type' => 'textfield',
-        '#title' => t('Contract Value'),
-      ),
-      'field_file' => array(
-        '#type' => 'file',
-        '#title' => t('File'),
+        '#title' => t('Status'),
       ),
     );
     return;

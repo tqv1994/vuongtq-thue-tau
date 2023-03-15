@@ -44,9 +44,8 @@ function quan_ly_tau_theme_preprocess_html(&$variables)
   }
   drupal_add_js($theme_path . '/assets/js/main.js', array('group' => JS_THEME));
   drupal_add_js($theme_path . '/app-assets/js/core/chuc-nang/main.js', array('group' => JS_THEME));
-  drupal_add_js($theme_path . '/app-assets/vendors/js/popper/popper.min.js', array('group' => JS_THEME));
-  drupal_add_js($theme_path . '/app-assets/vendors/js/menu.js', array('group' => JS_THEME));
-  drupal_add_js($theme_path . '/app-assets/vendors/js/dropdown-hover.js', array('group' => JS_THEME));
+  drupal_add_css($theme_path . '/app-assets/vendors/libs/flatpickr/flatpickr.css', array('group' => CSS_THEME));
+  drupal_add_js($theme_path . '/app-assets/vendors/libs/flatpickr/flatpickr.js', array('group' => JS_THEME));
   drupal_add_css($theme_path . '/app-assets/vendors/fonts/fontawesome.css', array('group' => CSS_THEME));
 }
 
