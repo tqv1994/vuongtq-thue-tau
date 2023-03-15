@@ -4,7 +4,7 @@
       <?php print t('Customer Manager') ?>
   </h5>
   <div class="card-body">
-    <table class="table table-bordered table-responsive table-striped table-hover">
+    <table <?php if ($classes): ?> class="<?php print $classes; ?> table table-bordered table-responsive table-striped table-hover"<?php endif ?><?php print $attributes; ?>>
       <?php if (!empty($title) || !empty($caption)): ?>
         <caption><?php print $caption . $title; ?></caption>
       <?php endif; ?>

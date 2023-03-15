@@ -305,10 +305,10 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
   if(strpos($form_id, 'views_exposed_form') !== FALSE) {
     $form["#prefix"] = "<div class='card'><h5 class='card-header'>".t("Filter")."</h5>";
     $form["#prefix"] .= "<div class='card-body'>";
-    $form['#suffix'] = "</div></div></div>";
+    $form['#suffix'] = "</div></div>";
     foreach (element_children($form) as $key){
       if($form[$key]['#type'] == 'submit'){
-        $form[$key]['#value'] = t("Search");
+        // $form[$key]['#value'] = t("Search");
         $form[$key]['#attributes']['class'][] = 'btn btn-success';
       }else{
 //        $form[$key]['#attributes']['placeholder'] = $form[$key]['#title'];
@@ -369,4 +369,22 @@ function ship_form_alter(&$form, &$form_state, $form_id) {
       break;
   }
 
+}
+
+function ship_views_post_render(&$view, &$output, &$cache) {
+    $custom_js = <<<JS
+      // Custom javascript code here.
+      console.log('Custom javascript executed.');
+    JS;
+    drupal_add_js($custom_js, 'inline');
+}
+
+function ship_views_ajax_data_alter(&$commands, $view) {
+    // $commands[] = array(
+    //   'command' => 'update',
+    //   'data' => array(
+    //     'view_name' => $view->name,
+    //     'display_name' => $view->current_display,
+    //   ),
+    // );
 }
